@@ -1,9 +1,14 @@
+// Programmer: Dhanush Patel
+// Programmer's ID: 1553428
+
 #define _CRT_SECURE_NO_WARNINGS
 
 #include <vector>
 #include <fstream>
 #include <iostream>
 #include <string>
+#include <algorithm>
+
 using namespace std;
 
 #include <cstring> // for strtok and strcpy
@@ -15,10 +20,13 @@ struct CInfo{
   int typeTotal;
 };
 
-void updateRecords(string,DynamicArray<CInfo>&);
+void updateRecords(string, DynamicArray<CInfo>&, int&);
 
-int main()
-{
+int main(){
+  cout << "Programmer: Dhanush Patel\n";
+  cout << "Programmer's ID: 1553428\n";
+  cout << "File: " << __FILE__ << endl;
+  
   // for parsing the inputfile
   char* token;
   char buf[1000];
@@ -32,21 +40,16 @@ int main()
   DynamicArray<string> alreadySeen;
   DynamicArray<CInfo> recordKeep;
 
-  int count = 0;
   int duplicates = 0;
   int aSeen = 0;
+  int rKeep = 0;
+  double count = 0.0;
 
   // read the input file
-  while (fin.good())
-  {
-
-    ++count;
-//    cout << count << endl;
-//      if (count % 1 == 0)
-    cout << count << "\r";
-      cout.flush();
-//  	cout << count << "%\r";
-
+  while (fin.good()){
+    count++;
+    cout << (count/74411) * 100 << "% \r";
+    cout.flush();
     // read the line
     string line;
     getline(fin, line);
@@ -64,41 +67,44 @@ int main()
 
     string key = term + "," +section;
     bool found = false;
-    for (int i =0; i < alreadySeen.capacity(); i++){
+    for (int i = 0; i < alreadySeen.capacity(); i++){
     	if (alreadySeen[i] == key){
     		found = true;
     	}
     }
 
-    if (found)
-    {
+    if (found){
       duplicates++;
-      cout << "num duplicates: " << duplicates << endl;
-//      // if I get this far, then it's a valid record
-//      cout << term << '|' << section << '|'
-//      << course << '|' << instructor << '|'
-//      << whenWhere << '|' << subjectCode << endl;
-
-
-  	  //++count;
-  	  //if (count == 10000) break;
     }
     else
     {
     	alreadySeen[aSeen] = key;
     	aSeen++;
-    	updateRecords(course,recordKeep);
+        updateRecords(subjectCode, recordKeep, rKeep);
     }
   }
-  cout << endl;
-  cout << "done" << endl;
+  cout << "number of duplicates: " << duplicates << endl;
+  
+  for(int i = 0; i < rKeep; i++){
+    for(int j = 0; j < rKeep; j++){
+      if(recordKeep[i].code < recordKeep[j].code)
+        swap(recordKeep[i], recordKeep[j]);
+    }
+  }
+  
+  for(int i = 0; i < recordKeep.capacity(); i++){
+    if(recordKeep[i].code == "" || recordKeep[i].typeTotal == 0){
+      continue;
+    }
+    cout << recordKeep[i].code << ": " << recordKeep[i].typeTotal << endl;
+  }
+  
   fin.close();
 }
 
-void updateRecords(string course,DynamicArray<CInfo>& rk){
-
+void updateRecords(string course, DynamicArray<CInfo>& rk, int& used){
   bool found = false;
-  for (int i = 0; i < rk.capacity(); i++){
+  for (int i = 0; i < used; i++){
     if (rk[i].code == course){
       rk[i].typeTotal++;
       found = true;
@@ -109,6 +115,7 @@ void updateRecords(string course,DynamicArray<CInfo>& rk){
     CInfo ci;
     ci.code = course;
     ci.typeTotal = 1;
-    rk[rk.capacity()] = ci;
+    rk[used] = ci;
+    used++;
   }
 }
